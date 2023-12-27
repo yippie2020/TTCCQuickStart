@@ -7,7 +7,7 @@ class ClashLauncher:
     APIDistPath = 'https://corporateclash.net/api/v1/districts.js'
     APIMetaPath = 'https://corporateclash.net/api/v1/game_info.js'
     APIRevoPath = 'https://corporateclash.net/api/launcher/v1/revoke_self'
-    gameServer = 'gs.corporateclash.net'
+    gameServer = 'gs-prd.corporateclash.net'
     configPath = os.path.dirname(__file__) + '\\config.json'
 
     activeDistricts = []
