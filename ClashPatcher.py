@@ -5,12 +5,14 @@ class ClashResourceFile:
     filePath = ''
     sha1 = ''
     compressedSha1 = ''
+    platformSpecific = False
 
-    def __init__(self, fn, fp, s1, cs1):
+    def __init__(self, fn, fp, s1, cs1, ps):
         self.fileName = fn
         self.filePath = fp
         self.sha1 = s1
         self.compressedSha1 = cs1
+        self.platformSpecific = ps
 
 class ClashPatcher:
     patchManifest = list()
@@ -26,21 +28,23 @@ class ClashPatcher:
         pass
 
     def getPatchManifest(self): 
+        # Windows Files
         manifestJson = requests.get(self.manifestTargetBase)
         if manifestJson.status_code != 200:
             raise ConnectionError(manifestJson.status_code)
 
         manifest = json.loads(manifestJson.text)
         for file in manifest['files']:
-            self.patchManifest.append(ClashResourceFile(file['fileName'], file['filePath'], file['sha1'], file['compressed_sha1']))
+            self.patchManifest.append(ClashResourceFile(file['fileName'], file['filePath'], file['sha1'], file['compressed_sha1'], True))
 
+        # Resource Files
         manifestJson = requests.get(self.manifestTargetRes)
         if manifestJson.status_code != 200:
             raise ConnectionError(manifestJson.status_code)
 
         manifest = json.loads(manifestJson.text)
         for file in manifest['files']:
-            self.patchManifest.append(ClashResourceFile(file['fileName'], file['filePath'], file['sha1'], file['compressed_sha1']))
+            self.patchManifest.append(ClashResourceFile(file['fileName'], file['filePath'], file['sha1'], file['compressed_sha1'], False))
 
     def checkLocalFiles(self, displayOutput: bool = False):
         for file in self.patchManifest:
@@ -118,7 +122,8 @@ class ClashPatcher:
             return -1
 
     def acquireFile(self, file: ClashResourceFile):
-        fileTarget = self.sha1HashString(file.filePath)
+        platform = "windows" if file.platformSpecific else "resources"
+        fileTarget = self.sha1HashString(file.filePath + platform)
 
         url = self.manifestUpdateUrl + fileTarget
         downloadPath = self.gameDirectory + fileTarget
