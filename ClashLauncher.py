@@ -4,13 +4,10 @@ class ClashLauncher:
     localGamePath = os.getenv('LOCALAPPDATA') + '\\Corporate Clash\\'
     APIRegtPath = 'https://corporateclash.net/api/launcher/v1/register'
     APILognPath = 'https://corporateclash.net/api/launcher/v1/login'
-    APIDistPath = 'https://corporateclash.net/api/v1/districts.js'
     APIMetaPath = 'https://corporateclash.net/api/v1/game_info.js'
     APIRevoPath = 'https://corporateclash.net/api/launcher/v1/revoke_self'
     gameServer = 'gs-prd.corporateclash.net'
     configPath = os.path.dirname(__file__) + '\\config.json'
-
-    activeDistricts = []
 
     # dictionaries to write to the config.json file
     accounts = {}       # stores all account usernames/tokens
@@ -18,12 +15,10 @@ class ClashLauncher:
 
     targetAccount = 0
     targetToonID = -1
-    targetDistrict = ''
 
     def __init__(self):
         self.loadConfig()
         self.handleOptions()
-        self.getDistricts()
         
         if not self.isGameOpen()[0]:
             print('Warning: Gameserver closed (%s).' % self.isGameOpen()[1])
@@ -56,16 +51,6 @@ class ClashLauncher:
         with open(self.configPath, 'w') as file:
             json.dump({"accounts": self.accounts, "options": self.options}, file, indent = 4)
 
-    def getDistricts(self):
-        districts = requests.get(self.APIDistPath).json()
-        if districts:
-            for district in districts:
-                if district['online']:
-                    self.activeDistricts.append(district['name'])
-
-        if not self.activeDistricts:
-            print('Warning: No active districts detected?')
-
     def isGameOpen(self) -> tuple:
         response = requests.get(self.APIMetaPath).json()
         return (not response['production_closed'], response['production_closed_reason'])
@@ -88,7 +73,7 @@ class ClashLauncher:
             self.saveConfig()
         return response['status']
 
-    def connect(self, accID, toonID, district) -> bool:
+    def connect(self, accID, toonID) -> bool:
         # error handling
         if not self.accounts:
             print('No accounts. Have you registered an account with "--register"?')
@@ -108,19 +93,6 @@ class ClashLauncher:
 
         print(response['message'])
         if response['status']:
-            # handle district select
-            targetDistrict = ''
-            for dist in self.activeDistricts:
-                if district == '':
-                    break
-                if district.lower() in dist.lower():
-                    targetDistrict = dist
-                    print('Using %s district.' % dist)
-                    break
-            
-            if targetDistrict == '':
-                print('Warning: Specified district does not exist, using random district.')
-
             # handle toon select
             if not (-1 < toonID < 6):
                 print('Warning: Toon ID out of bounds, ignoring.')
@@ -128,7 +100,7 @@ class ClashLauncher:
                 print('Using Toon ID %i.' % toonID)
             toonSlot = str(toonID) if (-1 < toonID < 6) else ''
 
-            subprocess.run(self.localGamePath + 'CorporateClash.exe', cwd = self.localGamePath, env = dict(os.environ, TT_GAMESERVER = self.gameServer, TT_PLAYCOOKIE = response['token'], FORCE_TOON_SLOT = toonSlot, FORCE_DISTRICT = targetDistrict))
+            subprocess.run(self.localGamePath + 'CorporateClash.exe', cwd = self.localGamePath, env = dict(os.environ, TT_GAMESERVER = self.gameServer, TT_PLAYCOOKIE = response['token'], FORCE_TOON_SLOT = toonSlot))
         return response['status']
 
 l = ClashLauncher()

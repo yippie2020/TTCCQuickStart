@@ -11,7 +11,6 @@
 | --- | --- |
 | `--account` | Used to specify an account index, takes an integer from 0, up to how many accounts specified in `config.json` - 1. |
 | `--toon` | Used to specify a Toon to log in with, with 0 being the top-left, 2 being the top-right, 3 being the bottom-left, and 5 being the bottom-right. |
-| `--district` | Used to specify a target district to log in with. Case-insensitive. |
 | `--forceupdate` | Forces the launcher to check for, and update game files, like the official launcher always does. Omission of this flag launches the game without checking for an update, which could be game-breaking. |
 | `--register` | Enables registration mode. Allows a user to enter a username and password to enable them for use with this launcher. |
 | `--username` | Works with `--register`. Bypasses user input, and uses the command line's input, instead. |
@@ -22,9 +21,9 @@
 
 ### Sample Usage
 
-`python main.py --account 0 --toon 3 --district tesla`
+`python main.py --account 0 --toon 3`
 
-The above command will log in using the first account specified in `config.json`, will use the Toon in the bottom-left slot, and will always use Tesla Tundra as the target district.
+The above command will log in using the first account specified in `config.json` and will use the Toon in the bottom-left slot.
 
 `python main.py --account 2`
 

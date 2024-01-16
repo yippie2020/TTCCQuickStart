@@ -6,7 +6,6 @@ ap = argparse.ArgumentParser(prog = 'launcher', description = 'Command-Line Laun
 
 ap.add_argument('--account', '-a', type = int, help = "Specifies an account to use to log in.")
 ap.add_argument('--toon', '-t', type = int, help = "Specifies a toon, by index, to use to log in. 0 is top left, 5 is bottom right.")
-ap.add_argument('--district', '-d', type = str, help = "Specifies a target district to log into. No district will launch the main menu page. Use '--district any' to guarantee a random district.")
 ap.add_argument('--continuous', '-c', action = 'store_true', help = "Will attempt to keep trying to relog into the game upon disconnecting or crashing.")
 
 rg = ap.add_argument_group()
@@ -35,20 +34,14 @@ if args.register:
 if args.account is not None:
     ac = args.account
     toon = -1
-    dist = ''
     if args.toon is not None:
         toon = args.toon
-    if args.district is not None:      
-        if args.district.lower() == 'any':
-            dist = ''
-        else:
-            dist = args.district
 
     if args.forceupdate:
         pa.run()
 
     while True:
-        lc.connect(ac, toon, dist)
+        lc.connect(ac, toon)
         if not args.continuous:
             break
         for i in reversed(range(5)):
@@ -57,8 +50,6 @@ if args.account is not None:
     sys.exit()
 if args.toon:
     print('Warning: Toon was specified without an account, ignoring.')
-if args.district:
-    print('Warning: District was specified without an account, ignoring.')
 
 if args.update or args.updateloop:
     while True:
